@@ -1,6 +1,3 @@
-from os import getenv
-from typing import Optional
-
 from pydantic_settings import BaseSettings
 
 
