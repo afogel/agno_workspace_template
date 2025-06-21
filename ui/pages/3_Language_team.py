@@ -1,7 +1,9 @@
 import asyncio
+import os
 
 import nest_asyncio
 import streamlit as st
+from phoenix.otel import register
 from agno.team import Team
 from agno.tools.streamlit.components import check_password
 from agno.utils.log import logger
@@ -15,6 +17,14 @@ from ui.utils import (
     example_inputs,
     initialize_team_session_state,
     selected_model,
+)
+
+# Initialize Phoenix tracing
+tracer_provider = register(
+    project_name="language_team",
+    batch=True,
+    auto_instrument=True,
+    endpoint=os.getenv("PHOENIX_COLLECTOR_ENDPOINT", "http://localhost:6006/v1/traces"),
 )
 
 nest_asyncio.apply()

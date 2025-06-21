@@ -1,41 +1,19 @@
 import os
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.sdk import trace as trace_sdk
-from opentelemetry import trace as trace_api
-from openinference.instrumentation.agno import AgnoInstrumentor
+from phoenix.otel import register
 
 from api.routes.v1_router import v1_router
 from api.settings import api_settings
 
 
-# Configure Phoenix tracing
-def setup_phoenix_tracing():
-    """Setup Phoenix tracing for observability"""
-    
-    # Get collector endpoint from environment variable
-    collector_endpoint = os.getenv("PHOENIX_COLLECTOR_ENDPOINT", "http://localhost:6006")
-    
-    # Create OTLP exporter with BatchSpanProcessor for production-ready setup
-    otlp_exporter = OTLPSpanExporter(
-        endpoint=collector_endpoint,
-    )
-    
-    # Create tracer provider with BatchSpanProcessor
-    tracer_provider = trace_sdk.TracerProvider()
-    tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
-    
-    # Set as global tracer provider
-    trace_api.set_tracer_provider(tracer_provider)
-    
-    # Manually instrument Agno instead of using register()
-    AgnoInstrumentor().instrument()
-
-
 # Initialize Phoenix tracing
-setup_phoenix_tracing()
+tracer_provider = register(
+    project_name="test_agno_app",
+    batch=True,
+    auto_instrument=True,
+    endpoint=os.getenv("PHOENIX_COLLECTOR_ENDPOINT", "http://localhost:6006/v1/traces"),
+)
 
 
 def create_app() -> FastAPI:

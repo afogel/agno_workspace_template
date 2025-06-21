@@ -14,7 +14,7 @@ source ${CURR_DIR}/_utils.sh
 print_heading "Validating workspace..."
 
 print_heading "Running: ruff check ${REPO_ROOT}"
-ruff check ${REPO_ROOT}
+uv run ruff check ${REPO_ROOT}
 
 print_heading "Running: mypy ${REPO_ROOT} --config-file ${REPO_ROOT}/pyproject.toml"
-mypy ${REPO_ROOT} --config-file ${REPO_ROOT}/pyproject.toml
+uv run mypy ${REPO_ROOT} --config-file ${REPO_ROOT}/pyproject.toml
