@@ -37,10 +37,15 @@ This method runs all services directly on your local machine without Docker.
 
 ### Prerequisites
 
-1. Install PostgreSQL via Homebrew:
+1. Install PostgreSQL 17 and pgvector:
 ```bash
-brew install postgresql
-brew services start postgresql
+brew install postgresql@17 pgvector
+
+# Configure PostgreSQL 17 to run on port 5433 (to avoid conflict with PostgreSQL 16)
+echo "port = 5433" >> /opt/homebrew/var/postgresql@17/postgresql.conf
+
+# Start PostgreSQL 17
+brew services start postgresql@17
 ```
 
 2. Install Overmind:
@@ -51,13 +56,16 @@ brew install overmind
 3. Create and configure environment variables:
 ```bash
 cp .env.example .env
-# Edit .env file with your API keys and configuration
+# Edit .env file with your API keys and update DB_PORT=5433 for PostgreSQL 17 (if you have another version of postgres on your machine, otherwise you can use the standard 5432)
 ```
 
 4. Set up the database:
 ```bash
-# Create database
-createdb opt_out_dev
+# Create database using PostgreSQL 17 (specify port 5433 to avoid conflict with PostgreSQL 16)
+/opt/homebrew/opt/postgresql@17/bin/createdb -p 5433 opt_out_dev
+
+# Connect to the database and enable pgvector extension
+psql -p 5433 opt_out_dev -c "CREATE EXTENSION IF NOT EXISTS vector;"
 ```
 
 5. Run database migrations:
